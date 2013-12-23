@@ -193,8 +193,15 @@ static int __devinit pmic8xxx_pwrkey_probe(struct platform_device *pdev)
 		input_report_key(pwrkey->pwr, KEY_POWER, 1);
 		input_sync(pwrkey->pwr);
 	}
-
-
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+	power_on_display(pwr);
+	pr_info("[wake_up_display]: set device %s\n", pwr->name);
+#else
+        power_on_display_dt2w(pwr);
+	pr_info("[wake_up_display]: set device %s\n", pwr->name);
+#endif
+#endif
 	err = request_any_context_irq(key_press_irq, pwrkey_press_irq,
 		IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_press", pwrkey);
 	if (err < 0) {
@@ -267,3 +274,4 @@ MODULE_ALIAS("platform:pmic8xxx_pwrkey");
 MODULE_DESCRIPTION("PMIC8XXX Power Key driver");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Trilok Soni <tsoni@codeaurora.org>");
+
